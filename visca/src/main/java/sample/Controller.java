@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class Controller {
 
     @RequestMapping(method = RequestMethod.POST, path = "/connect")
-    public String connect(@RequestParam(value = "speed") Integer speed) {
+    public String connect() {
         return "mock";
     }
 

@@ -4,9 +4,13 @@
 
     <div id="connection">
       <input v-model="port" type="text" placeholder="Port" class="form-control" />
-      <mdb-btn large color="primary" @click.native="switchToPort" :active="active6">Switch to port</mdb-btn>
+      <mdb-btn large color="primary" @click.native="switchToPort" :active="active6"
+        >Switch to port</mdb-btn
+      >
       <br />
-      <mdb-btn large color="primary" @click.native="connect" :active="active0">Connect to device</mdb-btn>
+      <mdb-btn large color="primary" @click.native="connect" :active="active0"
+        >Connect to device</mdb-btn
+      >
       <br />
     </div>
 
@@ -39,8 +43,8 @@
 </template>
 
 <script>
-import { mdbBtn } from "mdbvue";
-import { Multiselect } from "vue-multiselect";
+import {mdbBtn} from "mdbvue";
+import {Multiselect} from "vue-multiselect";
 
 export default {
   name: "ButtonPage",
@@ -53,13 +57,14 @@ export default {
       value: null,
       options: ["list", "of", "options"],
       items: [
-        { age: 40, first_name: "Dickerson", last_name: "Macdonald" },
-        { age: 21, first_name: "Larsen", last_name: "Shaw" },
-        { age: 89, first_name: "Geneva", last_name: "Wilson" },
-        { age: 38, first_name: "Jami", last_name: "Carney" }
+        {age: 40, first_name: "Dickerson", last_name: "Macdonald"},
+        {age: 21, first_name: "Larsen", last_name: "Shaw"},
+        {age: 89, first_name: "Geneva", last_name: "Wilson"},
+        {age: 38, first_name: "Jami", last_name: "Carney"}
       ],
+      actions: ["up", "down", "left", "right", "zoom_in", "zoom_out"],
       port: 1,
-      speed: 1
+      speed: 10
     };
   },
   methods: {
@@ -73,76 +78,61 @@ export default {
     },
     connect() {
       this.active0 = true;
-      axios.post("https://localhost:8080/connect").then(response => {
+      this.$http.post("http://localhost:8080/connect").then(response => {
         this.posts = response.data;
       });
     },
     toggleUp() {
       this.active1 = true;
-      axios
-        .post("https://localhost:8080/up/?speed=" + this.speed)
-        .then(response => {
-          this.posts = response.data;
-        });
+      this.$http.post("http://localhost:8080/up?speed=" + speed).then(response => {
+        this.posts = response.data;
+      });
     },
     toggleLeft() {
       this.active2 = true;
-      axios
-        .post("https://localhost:8080/down/?speed=" + this.speed)
-        .then(response => {
-          this.posts = response.data;
-        });
+      this.$http.post("http://localhost:8080/down?speed=" + speed).then(response => {
+        this.posts = response.data;
+      });
     },
     toggleRight() {
       this.active3 = true;
-      axios
-        .post("https://localhost:8080/right/?speed=" + this.speed)
-        .then(response => {
-          this.posts = response.data;
-        });
+      this.$http.post("http://localhost:8080/right?speed=" + speed).then(response => {
+        this.posts = response.data;
+      });
     },
     toggleDown() {
       this.active4 = true;
-      axios
-        .post("https://localhost:8080/left/?speed=" + this.speed)
-        .then(response => {
-          this.posts = response.data;
-        });
+      this.$http.post("http://localhost:8080/left?speed=" + speed).then(response => {
+        this.posts = response.data;
+      });
     },
     zoomIn() {
       this.active5 = true;
-      axios
-        .post("https://localhost:8080/zoom_in/?speed=" + this.speed)
-        .then(response => {
-          this.posts = response.data;
-        });
+      this.$http.post("http://localhost:8080/zoom_in?speed=" + speed).then(response => {
+        this.posts = response.data;
+      });
     },
     zoomOut() {
       this.active6 = true;
-      axios
-        .post("https://localhost:8080/zoom_out/?speed=" + this.speed)
-        .then(response => {
-          this.posts = response.data;
-        });
+      this.$http.post("http://localhost:8080/zoom_out?speed=" + speed).then(response => {
+        this.posts = response.data;
+      });
     },
     rotate() {
       this.active7 = true;
-      axios.post("https://localhost:8080/clear_all").then(response => {
+      this.$http.post("http://localhost:8080/clear_all").then(response => {
         this.posts = response.data;
       });
     },
     switchToPort() {
       this.active8 = true;
-      axios
-        .post("https://localhost:8080/switch_port/?port=" + value)
-        .then(response => {
-          this.posts = response.data;
-        });
+      this.$http.post("http://localhost:8080/switch_port?port=" + value).then(response => {
+        this.posts = response.data;
+      });
     }
   }
 };
 </script>
-
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style>
