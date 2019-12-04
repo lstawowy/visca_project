@@ -1,61 +1,178 @@
 <template>
   <div class="work">
-    <h1>This is controlling page</h1>
-
-    <div id="connection">
-      <input v-model="port" type="text" placeholder="Port" class="form-control" />
-      <mdb-btn large color="primary" @click.native="switchToPort" :active="active6"
-        >Switch to port</mdb-btn
-      >
-      <br />
-      <mdb-btn large color="primary" @click.native="connect" :active="active0"
-        >Connect to device</mdb-btn
-      >
-      <br />
-    </div>
-
-    <div id="movement">
-      <br />
-      <mdb-btn large color="primary" @click.native="toggleUp" :active="active1">Up</mdb-btn>
-      <br />
-      <mdb-btn large color="primary" @click.native="toggleLeft" :active="active2">Left</mdb-btn>
-      <mdb-btn large color="primary" @click.native="toggleRight" :active="active3">Right</mdb-btn>
-      <br />
-      <mdb-btn large color="primary" @click.native="toggleDown" :active="active4">Down</mdb-btn>
-      <br />
-      <br />
-      <mdb-btn large color="primary" @click.native="zoomIn" :active="active5">Zoom in</mdb-btn>
-      <mdb-btn large color="primary" @click.native="zoomOut" :active="active6">Zoom out</mdb-btn>
-      <br />
-      <input v-model="speed" type="text" placeholder="Speed" class="form-control" />
-    </div>
-
-    <div id="groups">
-      <div id="select">
-        <multiselect v-model="value" :options="options"></multiselect>
+    <div id="connection" class="box">
+      <div style="display: flex">
+        <multiselect
+          v-model="value"
+          :options="options"
+          style="width: 66%; margin: 2%;"
+        ></multiselect>
+        <button
+          class="button is-primary"
+          @click.native="connect"
+          :active="active0"
+          style="width: 26%; margin: 2%;"
+        >
+          Connect to device
+        </button>
       </div>
+      <div style="display: flex">
+        <input
+          v-model="port"
+          type="text"
+          placeholder="Port"
+          class="form-control"
+          style="width: 66%; margin: 2%;"
+        />
+        <button
+          class="button is-primary"
+          @click.native="switchToPort"
+          :active="active6"
+          style="width: 26%; margin: 2%;"
+        >
+          Switch to port
+        </button>
+      </div>
+    </div>
 
-      <div id="saved">
-        <b-table striped hover :items="items"></b-table>
+    <div id="movement" class="box">
+      <div id="toggle">
+        <br />
+        <button class="button is-primary is-rounded" @click.native="toggleUp">Up</button>
+        <br />
+        <button
+          class="button is-primary is-rounded"
+          @click.native="toggleLeft"
+          style="margin: 0 10px 0 10px"
+        >
+          Left
+        </button>
+        <button
+          class="button is-primary is-rounded"
+          @click.native="toggleRight"
+          style="margin: 0 10px 0 10px"
+        >
+          Right
+        </button>
+        <br />
+        <button class="button is-primary is-rounded" @click.native="toggleDown">Down</button>
+      </div>
+      <br />
+      <input
+        v-model="speed"
+        type="text"
+        placeholder="Speed"
+        class="form-control"
+        style="width: 10%"
+      />
+
+      <div id="zoom">
+        <br />
+        <button
+          class="button is-info is-rounded"
+          @click.native="zoomIn"
+          style="margin: 0 10px 0 10px"
+        >
+          Zoom in
+        </button>
+        <button
+          class="button is-info is-rounded"
+          @click.native="zoomOut"
+          style="margin: 0 10px 0 10px"
+        >
+          Zoom out
+        </button>
+        <button
+          class="button is-danger is-rounded"
+          @click.native="zoomOut"
+          style="margin: 0 10px 0 10px"
+        >
+          Clear
+        </button>
+      </div>
+      <br />
+    </div>
+
+    <div id="groups" class="box">
+      <div class="row">
+        <div class="column">
+          <div id="select">
+            <multiselect v-model="action" :options="actions"></multiselect>
+          </div>
+          <table class="table table-hover" style="width: 100%">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">First</th>
+                <th scope="col">Last</th>
+                <th scope="col">Handle</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">1</th>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>@mdo</td>
+              </tr>
+              <tr>
+                <th scope="row">2</th>
+                <td>Jacob</td>
+                <td>Thornton</td>
+                <td>@fat</td>
+              </tr>
+              <tr>
+                <th scope="row">3</th>
+                <td colspan="2">Larry the Bird</td>
+                <td>@twitter</td>
+              </tr>
+            </tbody>
+          </table>
+          <button
+            class="button is-success is-rounded"
+            @click.native="submit"
+            style="margin: 0 10px 0 10px"
+          >
+            Submit
+          </button>
+        </div>
+        <div class="column">
+          <table class="table table-hover" style="width: 100%">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">1</th>
+                <td>@mdo</td>
+              </tr>
+              <tr>
+                <th scope="row">2</th>
+                <td>@fat</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import {mdbBtn} from "mdbvue";
 import {Multiselect} from "vue-multiselect";
 
 export default {
   name: "ButtonPage",
   components: {
-    mdbBtn,
     Multiselect
   },
   data() {
     return {
       value: null,
-      options: ["list", "of", "options"],
+      options: [],
       items: [
         {age: 40, first_name: "Dickerson", last_name: "Macdonald"},
         {age: 21, first_name: "Larsen", last_name: "Shaw"},
@@ -64,7 +181,7 @@ export default {
       ],
       actions: ["up", "down", "left", "right", "zoom_in", "zoom_out"],
       port: 1,
-      speed: 10
+      speed: null
     };
   },
   methods: {
@@ -138,5 +255,13 @@ export default {
 <style>
 body {
   padding: 50px;
+}
+
+.row {
+  display: flex;
+}
+
+.column {
+  flex: 50%;
 }
 </style>
