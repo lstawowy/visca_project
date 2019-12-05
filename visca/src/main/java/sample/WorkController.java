@@ -5,14 +5,16 @@ import jssc.SerialPortException;
 import jssc.SerialPortList;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import javax.validation.constraints.NotBlank;
+import java.util.*;
 
 @CrossOrigin
 @RestController
 public class WorkController {
+
+    public WorkController() {
+        this.putActions();
+    }
 
     private ViscaController controller = new ViscaController();
     private SerialPort serialPort;
@@ -24,7 +26,7 @@ public class WorkController {
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/connect")
-    public String connect(@RequestParam(value = "port") String portName) {
+    public String connect(@RequestParam(value = "port") @NotBlank String portName) {
         serialPort = new SerialPort(portName);
         try {
             serialPort.openPort();
@@ -38,7 +40,7 @@ public class WorkController {
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/switch_address")
-    public String switchAddress(@RequestParam(value = "address") String name) {
+    public String switchAddress(@RequestParam(value = "address") @NotBlank String name) {
         byte address = -1;
         try {
             address = Byte.parseByte(name);
@@ -147,6 +149,7 @@ public class WorkController {
 
 
     public List<ActionGroup> actions = fillActions();
+    private Map<String, ParamLambda<SerialPort>> actionMap = new HashMap<>();
 
     private List<ActionGroup> fillActions() {
         ActionGroup actionGroup = new ActionGroup("test", Collections.singletonList("dup"));
@@ -161,16 +164,69 @@ public class WorkController {
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/groups/{name}")
-    public String addGroup(@PathVariable(name = "name") String name, @RequestBody String[] action) {
+    public String addGroup(@PathVariable(name = "name") @NotBlank String name, @RequestBody String[] action) {
         ActionGroup e = new ActionGroup(name, Arrays.asList(action));
         actions.add(actions.size(), e);
-        return "OK";
+        return "Group " + name + " added.";
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/groups/execute/{name}")
-    public String executeGroup(@PathVariable(name = "name") String name, @RequestParam(value = "delay") Integer delay) {
-        return ResponseStore.getInstance().getLastResponse();
+    public String executeGroup(@PathVariable(name = "name") @NotBlank String name, @RequestParam(value = "delay") Integer delay) {
+        new Thread(() -> actions.stream().forEach(item -> {
+            actionMap.get(item).run(serialPort);
+            try {
+                Thread.sleep(delay * 1000);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+        })).start();
+        return "Group " + name + " executed.";
     }
 
+    private void putActions() {
+        actionMap.put("tilt_left", serial -> {
+            try {
+                controller.sendPanTiltLeft(serial);
+            } catch (SerialPortException e) {
+                e.printStackTrace();
+            }
+        });
+        actionMap.put("tilt_right", serial -> {
+            try {
+                controller.sendPanTiltRight(serial);
+            } catch (SerialPortException e) {
+                e.printStackTrace();
+            }
+        });
+        actionMap.put("tilt_up", serial -> {
+            try {
+                controller.sendPanTiltUp(serial);
+            } catch (SerialPortException e) {
+                e.printStackTrace();
+            }
+        });
+        actionMap.put("tilt_down", serial -> {
+            try {
+                controller.sendPanTiltDown(serial);
+            } catch (SerialPortException e) {
+                e.printStackTrace();
+            }
+        });
+
+        actionMap.put("zoom_tele", serial -> {
+            try {
+                controller.sendZoomTeleStd(serial);
+            } catch (SerialPortException e) {
+                e.printStackTrace();
+            }
+        });
+        actionMap.put("zoom_wide", serial -> {
+            try {
+                controller.sendZoomWideStd(serial);
+            } catch (SerialPortException e) {
+                e.printStackTrace();
+            }
+        });
+    }
 
 }
