@@ -19,10 +19,12 @@ public class WorkController {
     private ViscaController controller = new ViscaController();
     private SerialPort serialPort;
 
+    public List<ActionGroup> actions = new ArrayList<>();
+    private Map<String, ParamLambda<SerialPort>> actionMap = new HashMap<>();
+
     @RequestMapping(method = RequestMethod.GET, path = "/ports")
     public String[] getPortList() {
         return SerialPortList.getPortNames();
-//        return new String[]{"test1", "test2", "test3"};
     }
 
     @RequestMapping(method = RequestMethod.POST, path = "/connect")
@@ -147,17 +149,6 @@ public class WorkController {
         return ResponseStore.getInstance().getLastResponse();
     }
 
-
-    public List<ActionGroup> actions = fillActions();
-    private Map<String, ParamLambda<SerialPort>> actionMap = new HashMap<>();
-
-    private List<ActionGroup> fillActions() {
-        ActionGroup actionGroup = new ActionGroup("test", Collections.singletonList("dup"));
-        ArrayList<ActionGroup> actionGroups = new ArrayList<>();
-        actionGroups.add(actionGroup);
-        return actionGroups;
-    }
-
     @RequestMapping(method = RequestMethod.GET, path = "/groups")
     public List<ActionGroup> getGroups() {
         return this.actions;
@@ -172,7 +163,15 @@ public class WorkController {
 
     @RequestMapping(method = RequestMethod.POST, path = "/groups/execute/{name}")
     public String executeGroup(@PathVariable(name = "name") @NotBlank String name, @RequestParam(value = "delay") Integer delay) {
-        new Thread(() -> actions.stream().forEach(item -> {
+        ActionGroup currentAction = null;
+        for (ActionGroup action : actions) {
+            if (action.name.equalsIgnoreCase(name)) {
+                currentAction = action;
+                break;
+            }
+        }
+        List<String> currentActions = Objects.requireNonNull(currentAction).actions;
+        new Thread(() -> currentActions.forEach(item -> {
             actionMap.get(item).run(serialPort);
             try {
                 Thread.sleep(delay * 1000);
