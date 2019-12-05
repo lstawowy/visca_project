@@ -2,60 +2,46 @@
   <div class="work">
     <div id="connection" class="box">
       <div style="display: flex">
-        <multiselect
-          v-model="value"
-          :options="options"
-          style="width: 66%; margin: 2%;"
-        ></multiselect>
+        <multiselect v-model="port" :options="ports" style="width: 66%; margin: 2%;"></multiselect>
         <button
           class="button is-primary"
-          @click.native="connect"
-          :active="active0"
+          @click="connect"
           style="width: 26%; margin: 2%;"
-        >
-          Connect to device
-        </button>
+        >Connect to device</button>
       </div>
       <div style="display: flex">
         <input
-          v-model="port"
+          v-model="address"
           type="text"
-          placeholder="Port"
+          placeholder="Address"
           class="form-control"
           style="width: 66%; margin: 2%;"
         />
         <button
           class="button is-primary"
-          @click.native="switchToPort"
-          :active="active6"
+          @click="switchAddress"
           style="width: 26%; margin: 2%;"
-        >
-          Switch to port
-        </button>
+        >Switch to address</button>
       </div>
     </div>
 
     <div id="movement" class="box">
       <div id="toggle">
         <br />
-        <button class="button is-primary is-rounded" @click.native="toggleUp">Up</button>
+        <button class="button is-primary is-rounded" @click="tiltUp">Up</button>
         <br />
         <button
           class="button is-primary is-rounded"
-          @click.native="toggleLeft"
-          style="margin: 0 10px 0 10px"
-        >
-          Left
-        </button>
+          @click="tiltLeft"
+          style="margin: 5px 10px 5px 10px"
+        >Left</button>
         <button
           class="button is-primary is-rounded"
-          @click.native="toggleRight"
-          style="margin: 0 10px 0 10px"
-        >
-          Right
-        </button>
+          @click="tiltRight"
+          style="margin: 5px 10px 5px 10px"
+        >Right</button>
         <br />
-        <button class="button is-primary is-rounded" @click.native="toggleDown">Down</button>
+        <button class="button is-primary is-rounded" @click="tiltDown">Down</button>
       </div>
       <br />
       <input
@@ -70,26 +56,22 @@
         <br />
         <button
           class="button is-info is-rounded"
-          @click.native="zoomIn"
+          @click="zoomTele"
           style="margin: 0 10px 0 10px"
-        >
-          Zoom in
-        </button>
+        >Zoom in</button>
         <button
           class="button is-info is-rounded"
-          @click.native="zoomOut"
+          @click="zoomWide"
           style="margin: 0 10px 0 10px"
-        >
-          Zoom out
-        </button>
+        >Zoom out</button>
         <button
           class="button is-danger is-rounded"
-          @click.native="zoomOut"
+          @click="clear"
           style="margin: 0 10px 0 10px"
-        >
-          Clear
-        </button>
+        >Clear</button>
       </div>
+      <br />
+      <div id="response" class="box">{{posts}}</div>
       <br />
     </div>
 
@@ -97,64 +79,71 @@
       <div class="row">
         <div class="column">
           <div id="select">
-            <multiselect v-model="action" :options="actions"></multiselect>
+            <multiselect v-model="action" :options="actions" @select="selectAction"></multiselect>
           </div>
-          <table class="table table-hover" style="width: 100%">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">First</th>
-                <th scope="col">Last</th>
-                <th scope="col">Handle</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-              </tr>
-              <tr>
-                <th scope="row">2</th>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>@fat</td>
-              </tr>
-              <tr>
-                <th scope="row">3</th>
-                <td colspan="2">Larry the Bird</td>
-                <td>@twitter</td>
-              </tr>
-            </tbody>
-          </table>
-          <button
-            class="button is-success is-rounded"
-            @click.native="submit"
-            style="margin: 0 10px 0 10px"
-          >
-            Submit
-          </button>
+          <div class="table-container">
+            <table class="table table-hover" style="width: 100%">
+              <tbody>
+                <tr v-for="(selected, index) in selected_actions" v-bind:key="index">
+                  <th>{{ selected }}</th>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display: flex">
+            <input
+              v-model="group_name"
+              type="text"
+              placeholder="Group name"
+              class="form-control"
+              style="width: 66%; margin: 2%;"
+            />
+            <button
+              class="button is-info is-rounded"
+              @click="submitGroup"
+              style="width: 26%; margin: 2%;"
+            >Submit</button>
+          </div>
         </div>
         <div class="column">
-          <table class="table table-hover" style="width: 100%">
-            <thead>
-              <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">1</th>
-                <td>@mdo</td>
-              </tr>
-              <tr>
-                <th scope="row">2</th>
-                <td>@fat</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-container">
+            <table class="table table-hover" style="width: 100%">
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="group in groups" v-bind:key="group">
+                  <td>{{ group.name }}</td>
+                  <td>{{ group.actions }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="display: flex">
+            <input
+              v-model="execute_name"
+              type="text"
+              placeholder="Execute group name"
+              class="form-control"
+              style="width: 36%; margin: 2%;"
+            />
+            <input
+              v-model="delay"
+              type="text"
+              placeholder="Delay"
+              class="form-control"
+              style="width: 36%; margin: 2%;"
+            />
+            <button
+              class="button is-rounded is-danger"
+              @click="executeGroup"
+              style="width: 26%; margin: 2%;"
+            >Execute</button>
+          </div>
         </div>
       </div>
     </div>
@@ -162,7 +151,7 @@
 </template>
 
 <script>
-import {Multiselect} from "vue-multiselect";
+import { Multiselect } from "vue-multiselect";
 
 export default {
   name: "ButtonPage",
@@ -171,79 +160,124 @@ export default {
   },
   data() {
     return {
+      port: null,
+      ports: [],
+
       value: null,
       options: [],
-      items: [
-        {age: 40, first_name: "Dickerson", last_name: "Macdonald"},
-        {age: 21, first_name: "Larsen", last_name: "Shaw"},
-        {age: 89, first_name: "Geneva", last_name: "Wilson"},
-        {age: 38, first_name: "Jami", last_name: "Carney"}
+
+      address: null,
+
+      action: null,
+      actions: [
+        "tilt_up",
+        "tilt_down",
+        "tilt_left",
+        "tilt_right",
+        "zoom_tele",
+        "zoom_wide"
       ],
-      actions: ["up", "down", "left", "right", "zoom_in", "zoom_out"],
-      port: 1,
+
+      selected_action: null,
+      selected_actions: [],
+
+      group_name: null,
+      groups: [],
+
+      execute_name: null,
+      delay: 1,
+
+      posts: null,
       speed: null
     };
   },
+  mounted() {
+    this.$http.get("http://localhost:8080/ports").then(response => {
+      this.ports = response.data;
+    });
+    this.$http.get("http://localhost:8080/groups").then(response => {
+      this.groups = response.data;
+    });
+  },
   methods: {
-    select() {
-      this.selected = [];
-      if (!this.selectAll) {
-        for (let i in this.items) {
-          this.selected.push(this.items[i].id);
-        }
-      }
+    selectAction(actionName) {
+      this.selected_actions.push(actionName);
+    },
+    executeGroup() {
+      this.$http
+        .post(
+          "http://localhost:8080/groups/execute/" +
+            this.execute_name +
+            "?delay=" +
+            this.delay
+        )
+        .then(response => {
+          this.posts = response.data;
+        });
+    },
+    submitGroup() {
+      this.$http
+        .post(
+          "http://localhost:8080/groups/" + this.group_name,
+          this.selected_actions
+        )
+        .then(response => {
+          this.posts = response.data;
+          this.$http.get("http://localhost:8080/groups").then(response => {
+            this.groups = response.data;
+          });
+        });
     },
     connect() {
-      this.active0 = true;
-      this.$http.post("http://localhost:8080/connect").then(response => {
+      this.$http
+        .post("http://localhost:8080/connect?port=" + this.port)
+        .then(response => {
+          this.posts = response.data;
+        });
+    },
+    switchAddress() {
+      this.$http
+        .post("http://localhost:8080/switch_address?address=" + this.address)
+        .then(response => {
+          this.posts = response.data;
+        });
+    },
+    tiltUp() {
+      this.$http.post("http://localhost:8080/tilt_up").then(response => {
         this.posts = response.data;
       });
     },
-    toggleUp() {
-      this.active1 = true;
-      this.$http.post("http://localhost:8080/up?speed=" + speed).then(response => {
+    tiltDown() {
+      this.$http.post("http://localhost:8080/tilt_down").then(response => {
         this.posts = response.data;
       });
     },
-    toggleLeft() {
-      this.active2 = true;
-      this.$http.post("http://localhost:8080/down?speed=" + speed).then(response => {
+    tiltLeft() {
+      this.$http
+        .post("http://localhost:8080/tilt_left?speed=" + this.speed)
+        .then(response => {
+          this.posts = response.data;
+        });
+    },
+    tiltRight() {
+      this.$http
+        .post("http://localhost:8080/tilt_right?speed=" + this.speed)
+        .then(response => {
+          this.posts = response.data;
+        });
+    },
+    zoomTele() {
+      this.$http.post("http://localhost:8080/zoom_tele").then(response => {
         this.posts = response.data;
       });
     },
-    toggleRight() {
-      this.active3 = true;
-      this.$http.post("http://localhost:8080/right?speed=" + speed).then(response => {
+    zoomWide() {
+      this.$http.post("http://localhost:8080/zoom_wide").then(response => {
         this.posts = response.data;
       });
     },
-    toggleDown() {
-      this.active4 = true;
-      this.$http.post("http://localhost:8080/left?speed=" + speed).then(response => {
-        this.posts = response.data;
-      });
-    },
-    zoomIn() {
-      this.active5 = true;
-      this.$http.post("http://localhost:8080/zoom_in?speed=" + speed).then(response => {
-        this.posts = response.data;
-      });
-    },
-    zoomOut() {
-      this.active6 = true;
-      this.$http.post("http://localhost:8080/zoom_out?speed=" + speed).then(response => {
-        this.posts = response.data;
-      });
-    },
-    rotate() {
-      this.active7 = true;
-      this.$http.post("http://localhost:8080/clear_all").then(response => {
-        this.posts = response.data;
-      });
-    },
-    switchToPort() {
-      this.active8 = true;
-      this.$http.post("http://localhost:8080/switch_port?port=" + value).then(response => {
+    clear() {
+      this.$http.post("http://localhost:8080/clear").then(response => {
         this.posts = response.data;
       });
     }
@@ -257,11 +291,31 @@ body {
   padding: 50px;
 }
 
+#response {
+  background-color: rgb(230, 189, 189);
+}
+
+#movement {
+  background-color: rgb(228, 215, 157);
+}
+
+#connection {
+  background-color: rgb(116, 216, 255);
+}
+
+#groups {
+  background-color: rgb(195, 221, 231);
+}
+
 .row {
   display: flex;
 }
 
 .column {
   flex: 50%;
+}
+
+body {
+  background-color: rgb(186, 252, 230);
 }
 </style>
