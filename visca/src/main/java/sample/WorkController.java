@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-public class Controller {
+public class WorkController {
 
     private ViscaController controller = new ViscaController();
     private SerialPort serialPort;
